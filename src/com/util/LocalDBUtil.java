@@ -5,54 +5,26 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class LocalDBUtil
+public class LocalDBUtil extends DBUtil
 {
-    private static LocalDBUtil instance;
     private Connection connection;
 
-    private final String DB_URL = "jdbc:h2:~/local_db";
-    private final String DB_USERNAME = "root";
-    private final String DB_PASSWORD = "";
-
-    public static void main(String[] args)
-    {
-        new LocalDBUtil();
-    }
-
-    private LocalDBUtil()
+    public LocalDBUtil(String url, String username, String password)
     {
         try
         {
             Class.forName("org.h2.Driver");
+
             //DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-            connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
+            connection = DriverManager.getConnection(url, username, password);
         }
-        catch(SQLException e)
-        {
-            System.out.println(e.getMessage());
-        }
-        catch(ClassNotFoundException e)
+        catch(SQLException | ClassNotFoundException e)
         {
             System.out.println(e.getMessage());
         }
     }
 
-    //Singleton class implementation
-    public static LocalDBUtil getInstance()
-    {
-        if (instance == null)
-        {
-            instance = new LocalDBUtil();
-        }
-        return instance;
-    }
-
-    public interface QueryHandler<T>
-    {
-        public T run(PreparedStatement ps) throws SQLException;
-    }
-
-    public <T> T execute(String query, QueryHandler<T> handler)
+    protected <T> T execute(String query, QueryHandler<T> handler)
     {
         try (PreparedStatement ps = connection.prepareStatement(query))
         {
@@ -64,4 +36,17 @@ public class LocalDBUtil
         }
         return null;
     }
+
+    /*
+
+    TO DELETE
+
+    public static void main(String[] args)
+    {
+        //LocalDBUtil.getInstance();
+        String currentDir = System.getProperty("user.dir");
+        DBUtil.Initialize(new LocalDBUtil(DB_URL));
+        System.out.println(currentDir);
+    }
+    */
 }
