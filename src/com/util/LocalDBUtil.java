@@ -32,21 +32,8 @@ public class LocalDBUtil extends DBUtil
         }
         catch (SQLException e)
         {
-            System.out.println("SQL Execute Exception: " + e.getMessage());
+            System.out.println("LocalDBUtil SQL Execute Exception: " + e.getMessage());
         }
         return null;
     }
-
-    /*
-
-    TO DELETE
-
-    public static void main(String[] args)
-    {
-        //LocalDBUtil.getInstance();
-        String currentDir = System.getProperty("user.dir");
-        DBUtil.Initialize(new LocalDBUtil(DB_URL));
-        System.out.println(currentDir);
-    }
-    */
 }

@@ -16,9 +16,31 @@ public class Mediator
     {
         ArrayList<Observer> eventObservers = observers.get(event);
 
-        for (Observer o : eventObservers)
+        if (eventObservers == null)
         {
-            o.onAction(event);
+            return;
+        }
+
+        for (Observer observer : eventObservers)
+        {
+            observer.onAction(event);
+            observer.onAction(event, null);
+        }
+    }
+
+    public void action(Event event, EventData data)
+    {
+        ArrayList<Observer> eventObservers = observers.get(event);
+
+        if (eventObservers == null)
+        {
+            return;
+        }
+
+        for (Observer observer : eventObservers)
+        {
+            observer.onAction(event);
+            observer.onAction(event, data);
         }
     }
 

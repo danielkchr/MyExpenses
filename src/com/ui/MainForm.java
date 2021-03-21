@@ -2,6 +2,7 @@ package com.ui;
 
 import com.bean.Expense;
 import com.controller.Event;
+import com.controller.EventData;
 import com.controller.Mediator;
 import com.controller.Observer;
 import com.dao.ExpenseDAO;
@@ -19,7 +20,9 @@ public class MainForm implements Observer
     private JTable expenseTable;
     private JButton addExpenseButton;
     private JButton deleteExpenseButton;
-    private JFrame mainForm;
+    private JTextField testTextField;
+    private JButton button1;
+    private JFrame frame;
 
     private HashMap<Integer, Integer> rowIndexToId;
     private Mediator mediator;
@@ -32,8 +35,11 @@ public class MainForm implements Observer
         initialise();
 
         addExpenseButton.addActionListener(e -> {
-            System.out.println("event listener worked");
             mediator.action(Event.ADD_EXPENSE);
+        });
+
+        deleteExpenseButton.addActionListener(e -> {
+            mediator.action(Event.DELETE_EXPENSE);
         });
 
         expenseTable.addMouseListener(new MouseAdapter() {
@@ -52,32 +58,42 @@ public class MainForm implements Observer
 
 
 
-    public void show()
+    private void show()
     {
-        mainForm.setVisible(true);
+        frame.setVisible(true);
     }
 
-    public void hide()
+    private void hide()
     {
-        mainForm.setVisible(false);
+        frame.setVisible(false);
+    }
+
+    private void updateTestTextField(String text)
+    {
+        testTextField.setText(text);
     }
 
     private void initialise()
     {
-        //create window and set it to
-        mainForm = new JFrame(FORM_TITLE);
-        mainForm.setContentPane(rootPanel);
-        //mainForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainForm.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        mainForm.setResizable(false);
-        mainForm.pack();
+        //subscribe to events
+        mediator.subscribe(this, Event.MAIN_FORM_SHOW);
+        mediator.subscribe(this, Event.MAIN_FORM_HIDE);
+        mediator.subscribe(this, Event.UPDATE_TEST_TEXT_FIELD);
 
-        mainForm.addWindowListener(new java.awt.event.WindowAdapter() {
+        //create window and set it to
+        frame = new JFrame(FORM_TITLE);
+        frame.setContentPane(rootPanel);
+        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.setResizable(false);
+        frame.pack();
+
+        frame.addWindowListener(new WindowAdapter()
+        {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                if (JOptionPane.showConfirmDialog(mainForm, "Are you sure you want to close this window?", "Close Window?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-                    System.exit(0);
-                }
+            public void windowClosing(WindowEvent windowEvent)
+            {
+                mediator.action(Event.MAIN_FORM_CLOSE, new EventData().put("frame", frame));
             }
         });
 
@@ -112,10 +128,6 @@ public class MainForm implements Observer
 
         expenseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         expenseTable.setModel(model);
-
-        //subscribe to events
-        mediator.subscribe(this, Event.MAIN_FORM_SHOW);
-        mediator.subscribe(this, Event.MAIN_FORM_HIDE);
     }
 
 
@@ -123,7 +135,7 @@ public class MainForm implements Observer
      * Concise wrapper around method to show user popup message
      */
     private void alert(String msg) {
-        JOptionPane.showInternalMessageDialog(mainForm.getContentPane(), msg);
+        JOptionPane.showInternalMessageDialog(frame.getContentPane(), msg);
     }
 
 
@@ -157,6 +169,16 @@ public class MainForm implements Observer
             case MAIN_FORM_HIDE:
                 this.hide();
                 break;
+        }
+    }
+
+    @Override
+    public void onAction(Event event, EventData data)
+    {
+        switch (event)
+        {
+            case UPDATE_TEST_TEXT_FIELD:
+                updateTestTextField((String) data.get("text"));
         }
     }
 }
